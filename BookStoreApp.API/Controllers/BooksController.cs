@@ -10,12 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookStoreApp.API.Data;
 using BookStoreApp.API.Models.Books;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookStoreApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BooksController : ControllerBase
+    [Authorize]
+   public class BooksController : ControllerBase
     {
 	    private readonly BookStoreDbContext _context;
 		private readonly IMapper _mapper;
@@ -68,7 +70,8 @@ namespace BookStoreApp.API.Controllers
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, BookUpdateDto bookDto)
+        [Authorize(Roles = "Administration")]
+      public async Task<IActionResult> PutBook(int id, BookUpdateDto bookDto)
         {
             if (id != bookDto.Id)
             {
@@ -107,7 +110,8 @@ namespace BookStoreApp.API.Controllers
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<BookCreateDto>> PostBook(BookCreateDto bookDto)
+        [Authorize(Roles = "Administration")]
+      public async Task<ActionResult<BookCreateDto>> PostBook(BookCreateDto bookDto)
         { 
 	        if (_context.Books == null) 
 	        { 
@@ -124,7 +128,8 @@ namespace BookStoreApp.API.Controllers
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBook(int id)
+        [Authorize(Roles = "Administration")]
+      public async Task<IActionResult> DeleteBook(int id)
         {
             if (_context.Books == null)
             {
