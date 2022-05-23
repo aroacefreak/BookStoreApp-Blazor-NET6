@@ -52,7 +52,7 @@ namespace BookStoreApp.API.Controllers
 
 				await _userManager.AddToRoleAsync(user, "User");
 
-				return Accepted();
+				return Ok();
 			}
 			catch (Exception ex)
 			{
@@ -83,7 +83,7 @@ namespace BookStoreApp.API.Controllers
 					UserId = user.Id,
 				};
 
-				return Accepted(response);
+				return Ok(response);
 			}
 			catch (Exception ex)
 			{
