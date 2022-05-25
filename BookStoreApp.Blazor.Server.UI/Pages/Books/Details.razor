@@ -1,0 +1,78 @@
+﻿@page "/books/details/{id:int}"
+@inject IBookService bookService
+@inject IBookService authorService
+@inject NavigationManager _navManager
+<h3>Book Details</h3>
+<EditForm model="Book" >
+	<fieldset disabled="true">
+		<div class="form-group">
+			<label>Book Cover Photo</label>
+			<div>
+				<img src="@Book.Image" width="100" height="100"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="firstname">Book Title</label>
+			<InputText @bind-Value="Book.Title" class="form-control" id="title"/>
+		</div>
+		<br/>
+		<div class="form-group">
+			<label for="firstname">Author</label>
+			<InputText @bind-Value="Book.AuthorName" class="form-control" id="author"/>
+		</div>
+		<br/>
+		<div class="form-group">
+			<label for="firstname">ISBN</label>
+			<InputText @bind-Value="Book.Isbn" class="form-control" id="isbn"/>
+		</div>
+		<br/>
+		<div class="form-group">
+			<label for="firstname">Price</label>
+			<InputNumber @bind-Value="Book.Price" class="form-control" id="price"/>
+		</div>
+		<br/>
+		<div class="form-group">
+			<label for="firstname">Year</label>
+			<InputNumber @bind-Value="Book.Year" class="form-control" id="year"/>
+		</div>
+		<br/>
+		<div class="form-group">
+			<label for="firstname">Summary</label>
+			<InputTextArea @bind-Value="Book.Summary" class="form-control" id="summary"/>
+		</div>
+		<br/>
+	</fieldset>
+
+	<button @onclick="GoToEdit" class="btn btn-outline-warning">
+		<span class="oi oi-pencil"></span>
+		Edit Book
+	</button>
+	<br/>
+	<button @onclick="BackToList" class="btn btn-outline-secondary">
+		<span class="oi oi-media-skip-backward"></span>
+		Back To List
+	</button>
+</EditForm>
+
+@code {
+	[Parameter]
+	public int id { get; set; }
+	private BookDetailsDto Book = new BookDetailsDto();
+
+	protected override async Task OnInitializedAsync()
+	{
+		var response = await bookService.Get(id);
+		if (response.Success)
+		{
+			Book = response.Data;
+		}
+	}
+	private void BackToList()
+	{
+		_navManager.NavigateTo("/books/");
+	}
+	private void GoToEdit()
+	{
+		_navManager.NavigateTo($"/books/update/{Book.Id}");
+	}
+}
