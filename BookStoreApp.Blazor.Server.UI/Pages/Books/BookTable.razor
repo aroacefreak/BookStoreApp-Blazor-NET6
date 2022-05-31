@@ -1,0 +1,79 @@
+﻿@using BookStoreApp.Blazor.Server.UI.Models
+@inject IBookService bookService
+@inject IJSRuntime js
+<table class="table table-responsive">
+	<thead>
+	<tr>
+		<th></th>
+		<th>Title</th>
+		<th>Price</th>
+		<th>Author Name</th>
+		<th>Action</th>
+	</tr>
+	</thead>
+	<tbody>
+	<Virtualize ItemsProvider="LoadBooks" Context="book">
+		<tr>
+			<td>
+				<img src="@book.Image" width="100" height="100" alt="@book.Title"/>
+			</td>
+			<td>@book.Title</td>
+			<td>@book.Price.ToString("C")</td>
+			<td><a class="btn btn-link" href="/authors/details/@book.AuthorId">@book.AuthorName</a></td>
+			<td>
+				<a class="btn btn-primary" href="/authors/details/@book.Id"><span class="oi oi-book" aria-hidden="true"></span></a>
+				<BookizeView Roles=@Roles.Administrator>
+					<a class="btn btn-warning" href="/authors/update/@book.Id"><span class="oi oi-pencil" aria-hidden="true"></span></a>
+					<button class="btn btn-danger" @onclick=@(() => Delete(@book.Id))><span class="oi oi-delete" aria-hidden="true"></span></button>
+				</BookizeView>
+			</td>
+		</tr>
+	</Virtualize>
+	@*@foreach (var author in Books)
+	{
+		<tr>
+			<td>@author.FirstName</td>
+			<td>@author.LastName</td>
+			<td>
+				<a class="btn btn-primary" href="/authors/details/@author.Id"><span class="oi oi-book" aria-hidden="true"></span>Details </a>
+				<BookizeView Roles=@Roles.Administrator>
+					<a class="btn btn-warning" href="/authors/update/@author.Id"><span class="oi oi-pencil" aria-hidden="true"></span>Edit </a>
+					<button class="btn btn-danger" @onclick=@(() => Delete(@author.Id))><span class="oi oi-delete" aria-hidden="true"></span>Delete </button>
+				</BookizeView>
+			</td>
+		</tr>
+	}*@
+	</tbody>
+</table>
+@code {
+	[Parameter]
+	public List<BookReadOnlyDto> Books { get; set; }
+	[Parameter]
+	public int TotalSize { get; set; }
+	[Parameter]
+	public EventCallback<QueryParameters> OnScroll { get; set; }
+
+	private async ValueTask<ItemsProviderResult<BookReadOnlyDto>> LoadBooks(ItemsProviderRequest request)
+	{
+		var productNum = Math.Min(request.Count, TotalSize - request.StartIndex);
+		await OnScroll.InvokeAsync(new QueryParameters
+		{
+			StartIndex = request.StartIndex,
+			PageSize = productNum == 0 ? request.Count : productNum
+		});
+		return new ItemsProviderResult<BookReadOnlyDto>(Books, TotalSize);
+	} 
+
+	private async Task Delete(int bookId)
+	{
+		var book = Books.First(q => q.Id == bookId);
+		var confirmation = await js.InvokeAsync<bool>($"confirm", $"Are You Sure You Want To Delete {book.Title}?");
+		if (!confirmation) return;
+
+		var response = await bookService.Delete(bookId);
+		if (response.Success)
+		{
+			await OnInitializedAsync();
+		}
+	}
+}

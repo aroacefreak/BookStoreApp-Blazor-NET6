@@ -1,4 +1,5 @@
 ﻿@page "/books/"
+@using BookStoreApp.Blazor.WebAssembly.UI.Models
 @inject IBookService bookService
 @inject IJSRuntime js
 <h3>Index</h3>
@@ -24,7 +25,8 @@ else
 		</AuthorizeView>
 		
 		<br/>
-		<table class="table table-responsive">
+		<BookTable Books="Books" TotalSize="TotalSize" OnScroll="LoadBooks"/>
+@*		<table class="table table-responsive">
 			<thead>
 			<tr>
 				<th></th>
@@ -54,34 +56,30 @@ else
 				</tr>
 			}
 			</tbody>
-		</table>
+		</table>*@
 	}
 }
 
 @code {
 	private List<BookReadOnlyDto> Books;
-	private Response<List<BookReadOnlyDto>> response = new Response<List<BookReadOnlyDto>>(){Success = true};
+	
+	public int TotalSize { get; set; }
+	private Response<BookReadOnlyDtoVirtualiseResponse> response = new Response<BookReadOnlyDtoVirtualiseResponse>(){Success = true};
 
 	protected override async Task OnInitializedAsync()
 	{
-		response = await bookService.Get();
+		response = await bookService.Get(new QueryParameters());
 		if (response.Success)
 		{
-			Books = response.Data;
+			Books = response.Data.Items.ToList();
 		}
 	}
 
-	private async Task Delete(int bookId)
+	private async Task LoadBooks(QueryParameters queryParams)
 	{
-		var book = Books.First(q => q.Id == bookId);
-		var confirmation = await js.InvokeAsync<bool>($"confirm", $"Are You Sure You Want To Delete {book.Title}?");
-		if (!confirmation) return;
-
-		var response = await bookService.Delete(bookId);
-		if (response.Success)
-		{
-			await OnInitializedAsync();
-		}
+		var virtualiseResult = await bookService.Get(queryParams);
+		Books = virtualiseResult.Data.Items.ToList();
+		TotalSize = virtualiseResult.Data.TotalSize;
 	}
 
 }

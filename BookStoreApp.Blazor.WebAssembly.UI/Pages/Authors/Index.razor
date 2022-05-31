@@ -1,4 +1,5 @@
 ﻿@page "/authors/"
+@using BookStoreApp.Blazor.WebAssembly.UI.Models
 @inject IAuthorService authorService
 @inject IJSRuntime js
 <h3>Index</h3>
@@ -24,7 +25,8 @@ else
 		</AuthorizeView>
 		
 		<br/>
-		<table class="table table-responsive">
+		<AuthorTable Authors="Authors" TotalSize="TotalSize" OnScroll="LoadAuthors"/>
+		@*<table class="table table-responsive">
 			<thead>
 			<tr>
 				<th>First Name</th>
@@ -48,34 +50,29 @@ else
 				</tr>
 			}
 			</tbody>
-		</table>
+		</table>*@
 	}
 }
 
 @code {
 	private List<AuthorReadOnlyDto> Authors;
-	private Response<List<AuthorReadOnlyDto>> response = new Response<List<AuthorReadOnlyDto>>(){Success = true};
+	public int TotalSize { get; set; }
+	private Response<AuthorReadOnlyDtoVirtualiseResponse> response = new Response<AuthorReadOnlyDtoVirtualiseResponse>(){Success = true};
 
 	protected override async Task OnInitializedAsync()
 	{
-		response = await authorService.Get();
+		response = await authorService.Get(new QueryParameters());
 		if (response.Success)
 		{
-			Authors = response.Data;
+			Authors = response.Data.Items.ToList();
 		}
 	}
 
-	private async Task Delete(int authorId)
+	private async Task LoadAuthors(QueryParameters queryParams)
 	{
-		var author = Authors.First(q => q.Id == authorId);
-		var confirmation = await js.InvokeAsync<bool>($"confirm", $"Are You Sure You Want To Delete {author.FirstName} {author.LastName}?");
-		if (!confirmation) return;
-
-		var response = await authorService.Delete(authorId);
-		if (response.Success)
-		{
-			await OnInitializedAsync();
-		}
+		var virtualiseResult = await authorService.Get(queryParams);
+		Authors = virtualiseResult.Data.Items.ToList();
+		TotalSize = virtualiseResult.Data.TotalSize;
 	}
 
 }

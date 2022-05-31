@@ -20,7 +20,9 @@ namespace BookStoreApp.Blazor.WebAssembly.UI.Services.Base
 			{
 				return new Response<Guid>()
 				{
-					Message = "Validation errors have occured.", ValidationErrors = apiException.Response, Success = false
+					Message = "Validation errors have occured.",
+					ValidationErrors = apiException.Response,
+					Success = false
 				};
 			}
 			if (apiException.StatusCode == 404)
@@ -28,6 +30,14 @@ namespace BookStoreApp.Blazor.WebAssembly.UI.Services.Base
 				return new Response<Guid>()
 				{
 					Message = "The requested item could not be found.",
+					Success = false
+				};
+			}
+			if (apiException.StatusCode == 401)
+			{
+				return new Response<Guid>()
+				{
+					Message = "Invalid Credentials, Please Try Again",
 					Success = false
 				};
 			}

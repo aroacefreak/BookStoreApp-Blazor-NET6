@@ -1,7 +1,5 @@
 ﻿@page "/users/login"
-@using BookStoreApp.Blazor.WebAssembly.UI.Services.Authentication
-@inject IAuthenticationService authService
-@inject NavigationManager _navManager
+
 <h3>Login</h3>
 @if (!string.IsNullOrEmpty(message))
 {
@@ -29,29 +27,3 @@
 		<button type="submit" class="btn btn-primary btn-block">Login</button>
 	</EditForm>
 </div>
-
-@code {
-	LoginUserDto LoginModel = new LoginUserDto();
-	string message = string.Empty;
-	public async Task HandleLogin()
-	{
-		try
-		{
-			var response = await authService.AuthenticateAsync(LoginModel);
-
-			if (response)
-			{
-				_navManager.NavigateTo("/");
-			}
-			message = "Invalid Credentials, Please Try Again";
-		}
-		catch (ApiException ex)
-		{
-			if (ex.StatusCode >= 200 && ex.StatusCode <= 299)
-			{
-				_navManager.NavigateTo("/");
-			}
-			message = ex.Message;
-		}
-	}
-}

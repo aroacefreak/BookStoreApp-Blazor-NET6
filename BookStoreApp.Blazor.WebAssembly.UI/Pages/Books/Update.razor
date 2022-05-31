@@ -1,4 +1,5 @@
 ﻿@page "/books/update/{id:int}"
+@using BookStoreApp.Blazor.WebAssembly.UI.Models
 @attribute [Authorize(Roles = Roles.Administrator)]
 @inject IBookService bookService
 @inject IAuthorService authorService
@@ -6,7 +7,7 @@
 <h3>Update Book</h3>
 
 <EditForm model="Book" OnValidSubmit="HandleBookUpdate">
-	<DataAnnotationsValidator />a
+	<DataAnnotationsValidator />
 	<ValidationSummary />
 	<div class="form-group">
 		<label for="firstname">Book Title</label>
@@ -81,9 +82,9 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		var response = await authorService.Get();
+		var response = await authorService.Get(new QueryParameters());
 		if (response.Success){
-			Authors = response.Data;
+			Authors = response.Data.Items.ToList();
 		}
 
 		var bookResponse = await bookService.GetForUpdate(id);

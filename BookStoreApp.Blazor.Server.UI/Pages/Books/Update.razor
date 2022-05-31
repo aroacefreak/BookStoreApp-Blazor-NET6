@@ -1,4 +1,5 @@
 ﻿@page "/books/update/{id:int}"
+@using BookStoreApp.Blazor.Server.UI.Models
 @attribute [Authorize(Roles = Roles.Administrator)]
 @inject IBookService bookService
 @inject IAuthorService authorService
@@ -81,9 +82,9 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		var response = await authorService.Get();
+		var response = await authorService.Get(new QueryParameters());
 		if (response.Success){
-			Authors = response.Data;
+			Authors = response.Data.Items.ToList();
 		}
 
 		var bookResponse = await bookService.GetForUpdate(id);
