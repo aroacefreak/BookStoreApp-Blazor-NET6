@@ -19,11 +19,11 @@
 			</td>
 			<td>@book.Title</td>
 			<td>@book.Price.ToString("C")</td>
-			<td><a class="btn btn-link" href="/authors/details/@book.AuthorId">@book.AuthorName</a></td>
+			<td><a class="btn btn-link" href="/books/details/@book.AuthorId">@book.AuthorName</a></td>
 			<td>
-				<a class="btn btn-primary" href="/authors/details/@book.Id"><span class="oi oi-book" aria-hidden="true"></span></a>
+				<a class="btn btn-primary" href="/books/details/@book.Id"><span class="oi oi-book" aria-hidden="true"></span></a>
 				<BookizeView Roles=@Roles.Administrator>
-					<a class="btn btn-warning" href="/authors/update/@book.Id"><span class="oi oi-pencil" aria-hidden="true"></span></a>
+					<a class="btn btn-warning" href="/books/update/@book.Id"><span class="oi oi-pencil" aria-hidden="true"></span></a>
 					<button class="btn btn-danger" @onclick=@(() => Delete(@book.Id))><span class="oi oi-delete" aria-hidden="true"></span></button>
 				</BookizeView>
 			</td>
